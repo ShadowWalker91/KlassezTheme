@@ -355,7 +355,7 @@
         },
         /*profileRoleSwitch: function(event){
           event.preventDefault();
-
+*/
     });
     /*
      *

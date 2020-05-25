@@ -46,11 +46,7 @@
 
 
 	get_header();
-  echo $display_name;echo "<br>";
-  echo $current_skills;echo "<br>";
-  echo $hour_rate;echo "<br>";
-  echo $job_title;echo "<br>";
-  echo $country;echo "<br>";
+
 ?>
 
 <section class="section-wrapper <?php if($user_role == TUTOR) echo 'tutor'; ?>">
