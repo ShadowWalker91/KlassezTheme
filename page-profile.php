@@ -32,10 +32,10 @@
     //get profile skills
     $current_skills = get_the_terms( $profile, 'skill' );
     //define variables:
-    $skills         = isset($profile->tax_input['skill']) ? $profile->tax_input['skill'] : array() ;
     $job_title      = isset($profile->et_professional_title) ? $profile->et_professional_title : '';
     $hour_rate      = isset($profile->hour_rate) ? $profile->hour_rate : '';
     $currency       = isset($profile->currency) ? $profile->currency : '';
+    $skills         = isset($profile->tax_input['skill']) ? $profile->tax_input['skill'] : array() ;
     $experience     = isset($profile->et_experience) ? $profile->et_experience : '';
     $hour_rate      = isset($profile->hour_rate) ? $profile->hour_rate : '';
     $about          = isset($profile->post_content) ? $profile->post_content : '';
@@ -46,7 +46,6 @@
 
 
 	get_header();
-
 ?>
 
 <section class="section-wrapper <?php if($user_role == TUTOR) echo 'tutor'; ?>">
