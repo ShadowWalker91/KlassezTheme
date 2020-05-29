@@ -1319,3 +1319,211 @@ if( !function_exists( 'fre_default_user_roles' ) ){
             );
     }
 }
+
+
+/**** Ah72king ****/
+add_filter( 'ae_post_taxs', 'ae_post_taxs_extended',10,2);
+function ae_post_taxs_extended($taxs, $post_type){
+    if($post_type == 'fre_profile'){
+        //echo '<pre>';
+         //print_r($post_type);
+         //print_r($taxs);
+        //echo '</pre>';
+        $taxs[] = 'education_system';
+        $taxs[] = 'academics';
+        $taxs[] = 'academics_years';
+        $taxs[] = 'non_academic_interest';
+        $taxs[] = 'non_academic_sub_interest';
+    }
+    return $taxs;
+}
+
+add_action( 'fre_profile_tabs', 'fre_profile_tabs_extended' );
+function fre_profile_tabs_extended(){
+    global $wp_query, $ae_post_factory, $post, $current_user, $user_ID;
+    //convert current user
+    $ae_users  = AE_Users::get_instance();
+    $user_data = $ae_users->convert($current_user->data);
+    $user_role = ae_user_role($current_user->ID);
+ if(fre_share_role() || $user_role == TUTOR){ 
+?>
+    <li>
+        <a href="#tab_profile_extra_details" role="tab" data-toggle="tab">
+           <?php _e('Profile Extra Details', ET_DOMAIN) ?>
+        </a>
+    </li>
+<?php
+ } 
+}
+add_action( 'fre_profile_tab_content', 'fre_profile_tab_content_extended' );
+function fre_profile_tab_content_extended(){
+    global $wp_query, $ae_post_factory, $post, $current_user, $user_ID;
+    //convert current user
+    $ae_users  = AE_Users::get_instance();
+    $user_data = $ae_users->convert($current_user->data);
+    $user_role = ae_user_role($current_user->ID);
+    //convert current profile
+    $post_object = $ae_post_factory->get(PROFILE);
+
+    $profile_id = get_user_meta( $user_ID, 'user_profile_id', true);
+
+    $profile = array('id' => 0, 'ID' => 0);
+    if($profile_id) {
+        $profile_post = get_post( $profile_id );
+        if($profile_post && !is_wp_error( $profile_post )){
+            $profile = $post_object->convert($profile_post);
+        }
+    }
+    
+ if(fre_share_role() || $user_role == TUTOR){ 
+    $education_system_obj  = get_the_terms( $profile, 'education_system' ); //isset($profile->tax_input['education_system'][0]) ? $profile->tax_input['education_system'][0]->slug : '' ;
+    $academics_obj         = get_the_terms( $profile, 'academics' );//isset($profile->tax_input['academics']) ? $profile->tax_input['academics'] : '' ;
+    $academics_years_obj   = get_the_terms( $profile, 'academics_years' );//isset($profile->tax_input['academics_years'][0]) ? $profile->tax_input['academics_years'][0]->slug : '' ;
+    $non_academic_interest_obj  = get_the_terms( $profile, 'non_academic_interest' );//isset($profile->tax_input['non_academic_interest'][0]) ? $profile->tax_input['non_academic_interest'][0]->slug : '' ;
+    $non_academic_sub_interest_obj  = get_the_terms( $profile, 'non_academic_sub_interest' );//isset($profile->tax_input['non_academic_sub_interest'][0]) ? $profile->tax_input['non_academic_sub_interest'][0]->slug : '' ;
+    $education_system = array();
+    if(!empty($education_system_obj)){
+        foreach ($education_system_obj as $key => $value) {
+          $education_system[] = $value->term_id;
+        }
+    }
+    $academics = array();
+    if(!empty($academics_obj)){
+        foreach ($academics_obj as $key => $value) {
+          $academics[] = $value->term_id;
+        }
+    }
+    $academics_years = array();
+    if(!empty($academics_years_obj)){
+        foreach ($academics_years_obj as $key => $value) {
+          $academics_years[] = $value->term_id;
+        }
+    }
+    $non_academic_interest = array();
+    if(!empty($non_academic_interest_obj)){
+        foreach ($non_academic_interest_obj as $key => $value) {
+          $non_academic_interest[] = $value->term_id;
+        }
+    }
+    $non_academic_sub_interest = array();
+    if(!empty($non_academic_sub_interest_obj)){
+        foreach ($non_academic_sub_interest_obj as $key => $value) {
+          $non_academic_sub_interest[] = $value->term_id;
+        }
+    }
+     //echo '<pre>';
+     //print_r($education_system);
+     //print_r($academics);
+     //print_r($academics_years);
+     //print_r($non_academic_interest);
+     //print_r($non_academic_sub_interest);
+     //print_r($profile);
+     //echo '</pre>';
+?>
+<div class="tab-pane fade" id="tab_profile_extra_details">
+    <div class="detail-profile-page">
+        <form class="form-detail-profile-page validateNumVal" id="profile_form">
+            <div class="form-group">
+               <div class="profile-category">
+                    <label><?php _e('Education System', ET_DOMAIN) ?></label>
+                <?php
+                    ae_tax_dropdown( 'education_system' ,
+                        array(
+                            'attr'            => 'data-chosen-width="100%" data-chosen-disable-search="" data-placeholder="'.__("Choose Education System", ET_DOMAIN).'"',
+                            'class'           => 'chosen multi-tax-item tax-item required cat_profile',
+                            'hide_empty'      => false,
+                            'hierarchical'    => true ,
+                            'id'              => 'education_system' ,
+                            'selected'        => $education_system,
+                            'show_option_all' => false
+                        )
+                     );
+                 ?>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="form-group">
+               <div class="profile-category">
+                    <label><?php _e('Academics', ET_DOMAIN) ?></label>
+                <?php
+                    ae_tax_dropdown( 'academics' ,
+                        array(
+                            'attr'            => 'data-chosen-width="100%" data-chosen-disable-search="" multiple data-placeholder="'.__("Choose Academics", ET_DOMAIN).'"',
+                            'class'           => 'chosen multi-tax-item tax-item required cat_profile',
+                            'hide_empty'      => false,
+                            'hierarchical'    => true ,
+                            'id'              => 'academics' ,
+                            'selected'        => $academics,
+                            'show_option_all' => false
+                        )
+                     );
+                 ?>
+                </div>
+            </div>                           
+            <div class="clearfix"></div>
+            <div class="form-group">
+               <div class="profile-category">
+                    <label><?php _e('Academics Years', ET_DOMAIN) ?></label>
+                <?php
+                    ae_tax_dropdown( 'academics_years' ,
+                        array(
+                            'attr'            => 'data-chosen-width="100%" data-chosen-disable-search="" multiple data-placeholder="'.__("Choose Academics Years", ET_DOMAIN).'"',
+                            'class'           => 'chosen multi-tax-item tax-item required cat_profile',
+                            'hide_empty'      => false,
+                            'hierarchical'    => true ,
+                            'id'              => 'academics_years' ,
+                            'selected'        => $academics_years,
+                            'show_option_all' => false
+                        )
+                     );
+                 ?>
+                </div>
+            </div>                      
+            <div class="clearfix"></div>
+            <div class="form-group">
+               <div class="profile-category">
+                    <label><?php _e('Non-Academic Interest', ET_DOMAIN) ?></label>
+                <?php
+                    ae_tax_dropdown( 'non_academic_interest' ,
+                        array(
+                            'attr'            => 'data-chosen-width="100%" data-chosen-disable-search="" multiple data-placeholder="'.__("Choose Non-Academic Interest", ET_DOMAIN).'"',
+                            'class'           => 'chosen multi-tax-item tax-item required cat_profile',
+                            'hide_empty'      => false,
+                            'hierarchical'    => true ,
+                            'id'              => 'non_academic_interest' ,
+                            'selected'        => $non_academic_interest,
+                            'show_option_all' => false
+                        )
+                     );
+                 ?>
+                </div>
+            </div>                      
+            <div class="clearfix"></div>
+            <div class="form-group">
+               <div class="profile-category">
+                    <label><?php _e('Non-Academic Sub-Interest', ET_DOMAIN) ?></label>
+                <?php
+                    ae_tax_dropdown( 'non_academic_sub_interest' ,
+                        array(
+                            'attr'            => 'data-chosen-width="100%" data-chosen-disable-search="" multiple data-placeholder="'.__("Choose Non-Academic Sub-Interest", ET_DOMAIN).'"',
+                            'class'           => 'chosen multi-tax-item tax-item required cat_profile',
+                            'hide_empty'      => false,
+                            'hierarchical'    => true ,
+                            'id'              => 'non_academic_sub_interest' ,
+                            'selected'        => $non_academic_sub_interest,
+                            'show_option_all' => false
+                        )
+                     );
+                 ?>
+                </div>
+            </div>                      
+            <div class="clearfix"></div>
+            <div class="form-group">
+                <input type="submit" class="btn-submit btn-sumary" name="" value="<?php _e('Save Details', ET_DOMAIN) ?>">
+            </div>
+        </form>
+   </div>
+</div>
+<?php
+ } 
+}
